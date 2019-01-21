@@ -6,8 +6,9 @@ import { AppContainer, Parent, Child, Name, Description, Type } from "./styled";
 
 const fmtName = (name: string) => name.replace(/_/g, " ");
 
-const search = (q: string, data: IData) => {
-  if (q.length < 3) return data;
+const searchData = (q: string, data?: IData) => {
+  if (!data) return data;
+  if (q.length < 1) return data;
 
   const filter = new RegExp(q, "gi");
 
@@ -19,22 +20,30 @@ const search = (q: string, data: IData) => {
           ...parent,
           type: {
             ...parent.type,
-            fields: parent.type.fields.filter(child => {
-              child.name.search(filter) !== -1 ||
-                child.description.search(filter) !== -1;
-            })
+            fields: parent.type.fields.filter(
+              child =>
+                child.name.search(filter) !== -1 ||
+                child.description.search(filter) !== -1 ||
+                parent.name.search(filter) !== -1 ||
+                parent.description.search(filter) !== -1
+            )
           }
         };
       })
     }
   };
 
-  return filteredChildren.__type.fields.filter(
-    parent => parent.type.fields.length > 0
-  );
+  return {
+    __type: {
+      ...filteredChildren.__type,
+      fields: filteredChildren.__type.fields.filter(
+        parent => parent.type.fields.length > 0
+      )
+    }
+  };
 };
 
-const CaseFilters: React.ComponentType<ISearchProps> = ({search}) => (
+const CaseFilters: React.ComponentType<ISearchProps> = ({ search }) => (
   <Query<IData>
     query={gql`
       {
@@ -62,9 +71,12 @@ const CaseFilters: React.ComponentType<ISearchProps> = ({search}) => (
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error :(</p>;
-      if (!data) return <p>Error - No Data! :(</p>;
 
-      return (data as IData).__type.fields.map(parent => (
+      const searchedData = searchData(search, data);
+      if (!searchedData || searchedData.__type.fields.length === 0)
+        return <p>Error - No Data! :(</p>;
+
+      return (searchedData as IData).__type.fields.map(parent => (
         <Parent key={parent.name}>
           <Name>{fmtName(parent.name)}</Name>
           <Description>{parent.description}</Description>
@@ -81,9 +93,13 @@ const CaseFilters: React.ComponentType<ISearchProps> = ({search}) => (
   </Query>
 );
 
-interface ISearchProps { search: string };
+interface ISearchProps {
+  search: string;
+}
 
-const makeSearchable = (WrappedComponent: React.ComponentType<ISearchProps>) => {
+const makeSearchable = (
+  WrappedComponent: React.ComponentType<ISearchProps>
+) => {
   return class extends React.Component<{}, ISearchProps> {
     constructor(props: {}) {
       super(props);
@@ -95,14 +111,18 @@ const makeSearchable = (WrappedComponent: React.ComponentType<ISearchProps>) => 
     }
 
     handleChange(event: React.FormEvent<HTMLInputElement>) {
-      this.setState({search: event.currentTarget.value});
+      this.setState({ search: event.currentTarget.value });
     }
 
     render() {
       return (
         <div>
           <div>
-            <input type="text" value={this.state.search} onChange={this.handleChange} />
+            <input
+              type="text"
+              value={this.state.search}
+              onChange={this.handleChange}
+            />
           </div>
           <WrappedComponent search={this.state.search} />
         </div>
