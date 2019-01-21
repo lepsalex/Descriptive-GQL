@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
-import { IData } from "./types";
-import { AppContainer, Parent, Child, Name, Description, Type } from "./styled";
+import { IData, ISearchProps } from "./types";
+import { AppContainer, Parent, Child, Name, Description, Type, SearchComponent } from "./styled";
 
 const fmtName = (name: string) => name.replace(/_/g, " ");
 
@@ -69,12 +69,12 @@ const CaseFilters: React.ComponentType<ISearchProps> = ({ search }) => (
     `}
   >
     {({ loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error) return <p>Error :(</p>;
+      if (loading) return <Parent>Loading...</Parent>;
+      if (error) return <Parent>Error :(</Parent>;
 
       const searchedData = searchData(search, data);
       if (!searchedData || searchedData.__type.fields.length === 0)
-        return <p>Error - No Data! :(</p>;
+        return <Parent>Error - No Data! :(</Parent>;
 
       return (searchedData as IData).__type.fields.map(parent => (
         <Parent key={parent.name}>
@@ -92,10 +92,6 @@ const CaseFilters: React.ComponentType<ISearchProps> = ({ search }) => (
     }}
   </Query>
 );
-
-interface ISearchProps {
-  search: string;
-}
 
 const makeSearchable = (
   WrappedComponent: React.ComponentType<ISearchProps>
@@ -116,16 +112,17 @@ const makeSearchable = (
 
     render() {
       return (
-        <div>
-          <div>
+        <>
+          <SearchComponent>
+            <label>Search:</label>
             <input
               type="text"
               value={this.state.search}
               onChange={this.handleChange}
             />
-          </div>
+          </SearchComponent>
           <WrappedComponent search={this.state.search} />
-        </div>
+        </>
       );
     }
   };

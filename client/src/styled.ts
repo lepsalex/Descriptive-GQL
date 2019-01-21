@@ -1,5 +1,10 @@
 import styled from "styled-components";
 
+const { lightGrey, darkGrey } = {
+  lightGrey: "#f5f5f5",
+  darkGrey: "#e8e8e8"
+};
+
 export const AppContainer = styled.div`
   position: relative;
   left: 50%;
@@ -8,21 +13,21 @@ export const AppContainer = styled.div`
   padding: 0 32px;
   height: 80vh;
   margin-top: 10vh;
-  overflow-y: scroll;
+  overflow-y: auto;
   font-size: 16px;
   font-family: "Open Sans", sans-serif;
 `;
 
 export const Parent = styled.div`
   padding: 16px;
-  background: #f5f5f5;
+  background: ${lightGrey};
   margin-bottom: 16px;
 `;
 
 export const Child = styled.div`
   padding: 16px 16px 16px 32px;
   margin-bottom: 16px;
-  background: #e8e8e8;
+  background: ${darkGrey};
 
   &:last-child {
     margin-bottom: 0;
@@ -44,4 +49,21 @@ export const Type = styled(Description)`
   font-size: 12px;
   font-weight: 700;
   margin-bottom: 0;
+`;
+
+export const SearchComponent = styled.div`
+  position: relative;
+  background: ${lightGrey};
+  padding: 16px;
+  margin-bottom: 16px;
+
+  label {
+    font-weight: 700;
+    margin-right: 16px;
+    width: 60px;
+  }
+
+  input {
+    width: calc(100% - 92px);
+  }
 `;

@@ -22,3 +22,7 @@ interface ITopLevel extends INamedandDescribed {
 export interface IData {
   __type: ITopLevel;
 }
+
+export interface ISearchProps {
+  search: string;
+}
