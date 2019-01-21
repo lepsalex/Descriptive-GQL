@@ -34,7 +34,7 @@ const search = (q: string, data: IData) => {
   );
 };
 
-const CaseFilters = () => (
+const CaseFilters: React.ComponentType<ISearchProps> = ({search}) => (
   <Query<IData>
     query={gql`
       {
@@ -81,11 +81,43 @@ const CaseFilters = () => (
   </Query>
 );
 
+interface ISearchProps { search: string };
+
+const makeSearchable = (WrappedComponent: React.ComponentType<ISearchProps>) => {
+  return class extends React.Component<{}, ISearchProps> {
+    constructor(props: {}) {
+      super(props);
+      this.state = {
+        search: ""
+      };
+
+      this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange(event: React.FormEvent<HTMLInputElement>) {
+      this.setState({search: event.currentTarget.value});
+    }
+
+    render() {
+      return (
+        <div>
+          <div>
+            <input type="text" value={this.state.search} onChange={this.handleChange} />
+          </div>
+          <WrappedComponent search={this.state.search} />
+        </div>
+      );
+    }
+  };
+};
+
+const SearchableCaseFilters = makeSearchable(CaseFilters);
+
 class App extends Component {
   render() {
     return (
       <AppContainer>
-        <CaseFilters />
+        <SearchableCaseFilters />
       </AppContainer>
     );
   }
