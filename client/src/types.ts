@@ -11,12 +11,12 @@ interface IBaseItem extends INamedandDescribed {
 interface IParentItem extends INamedandDescribed {
   type: {
     name: string;
-    fields: [IBaseItem];
+    fields: IBaseItem[];
   };
 }
 
 interface ITopLevel extends INamedandDescribed {
-  fields: [IParentItem];
+  fields: IParentItem[];
 }
 
 export interface IData {

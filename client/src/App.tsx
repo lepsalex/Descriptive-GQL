@@ -6,6 +6,34 @@ import { AppContainer, Parent, Child, Name, Description, Type } from "./styled";
 
 const fmtName = (name: string) => name.replace(/_/g, " ");
 
+const search = (q: string, data: IData) => {
+  if (q.length < 3) return data;
+
+  const filter = new RegExp(q, "gi");
+
+  const filteredChildren: IData = {
+    __type: {
+      ...data.__type,
+      fields: data.__type.fields.map(parent => {
+        return {
+          ...parent,
+          type: {
+            ...parent.type,
+            fields: parent.type.fields.filter(child => {
+              child.name.search(filter) !== -1 ||
+                child.description.search(filter) !== -1;
+            })
+          }
+        };
+      })
+    }
+  };
+
+  return filteredChildren.__type.fields.filter(
+    parent => parent.type.fields.length > 0
+  );
+};
+
 const CaseFilters = () => (
   <Query<IData>
     query={gql`
@@ -35,6 +63,7 @@ const CaseFilters = () => (
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error :(</p>;
       if (!data) return <p>Error - No Data! :(</p>;
+
       return (data as IData).__type.fields.map(parent => (
         <Parent key={parent.name}>
           <Name>{fmtName(parent.name)}</Name>
