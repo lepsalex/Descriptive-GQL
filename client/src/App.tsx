@@ -4,6 +4,8 @@ import gql from "graphql-tag";
 import { IData } from "./types";
 import { AppContainer, Parent, Child, Name, Description, Type } from "./styled";
 
+const fmtName = (name: string) => name.replace(/_/g, " ");
+
 const CaseFilters = () => (
   <Query<IData>
     query={gql`
@@ -35,11 +37,11 @@ const CaseFilters = () => (
       if (!data) return <p>Error - No Data! :(</p>;
       return (data as IData).__type.fields.map(parent => (
         <Parent key={parent.name}>
-          <Name>{parent.name}</Name>
+          <Name>{fmtName(parent.name)}</Name>
           <Description>{parent.description}</Description>
           {parent.type.fields.map(child => (
             <Child key={child.name}>
-              <Name>{child.name}</Name>
+              <Name>{fmtName(child.name)}</Name>
               <Description>{child.description}</Description>
               <Type>Type: {child.type.name}</Type>
             </Child>
