@@ -6,7 +6,7 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
-const port = process.env.URI_PORT || 4000;
+const port = process.env.URI_PORT || 8080;
 
 const client = new ApolloClient({
   uri: process.env.URI || `${window.location.protocol}//${window.location.hostname}:${port}`
